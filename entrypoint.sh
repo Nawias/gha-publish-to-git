@@ -67,7 +67,6 @@ git init || exit 1
 git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com" || exit 1
 git config --local user.name  "${GITHUB_ACTOR}" || exit 1
 git remote add origin "${REMOTE}" || exit 1
-git config --global --add safe.directory "${TARGET_PATH}"
 
 # Fetch initial (current contents).
 #
@@ -76,6 +75,8 @@ if [ "$(git ls-remote --heads "${REMOTE}" "${BRANCH}"  | wc -l)" == 0 ] ; then
     echo "Initialising ${BRANCH} branch"
     git checkout --orphan ${BRANCH}
     TARGET_PATH="${WORK_DIR}/${TARGET_FOLDER}"
+    echo "Adding ${TARGET_PATH} as a safe directory"
+    git config --global --add safe.directory "${TARGET_PATH}"
     echo "Populating ${TARGET_PATH}"
     mkdir -p "${TARGET_PATH}" || exit 1
     rsync -a --quiet --delete --exclude ".git" "${INITIAL_SOURCE_PATH}/" "${TARGET_PATH}" || exit 1
