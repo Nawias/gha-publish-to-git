@@ -59,6 +59,8 @@ echo "Publishing ${SOURCE_FOLDER} to ${REMOTE}:${BRANCH}/${TARGET_FOLDER}"
 WORK_DIR="${INPUT_WORKDIR:-$(mktemp -d "${HOME}/gitrepo.XXXXXX")}"
 [ -z "${WORK_DIR}" ] && echo >&2 "::error::Failed to create temporary working directory" && exit 1
 cd "${WORK_DIR}"
+echo "Adding ${WORK_DIR} as a safe directory"
+git config --global --add safe.directory "${WORK_DIR}"
 
 # Initialize git repo and configure for remote access.
 #
@@ -75,8 +77,6 @@ if [ "$(git ls-remote --heads "${REMOTE}" "${BRANCH}"  | wc -l)" == 0 ] ; then
     echo "Initialising ${BRANCH} branch"
     git checkout --orphan ${BRANCH}
     TARGET_PATH="${WORK_DIR}/${TARGET_FOLDER}"
-    echo "Adding ${WORK_DIR} as a safe directory"
-    git config --global --add safe.directory "${WORK_DIR}"
     echo "Populating ${TARGET_PATH}"
     mkdir -p "${TARGET_PATH}" || exit 1
     rsync -a --quiet --delete --exclude ".git" "${INITIAL_SOURCE_PATH}/" "${TARGET_PATH}" || exit 1
